@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    @ObservedObject var speechInput: SpeechInputController
+
     let onCreateNote: () -> Void
 
     var body: some View {
@@ -35,9 +37,15 @@ struct HomeView: View {
                     .frame(height: 109)
 
                 Button {
-                    // Voice input is intentionally deferred.
+                    Task {
+                        await speechInput.toggle()
+                    }
                 } label: {
                     ZStack {
+                        if speechInput.isListening {
+                            ListeningPulse()
+                        }
+
                         Circle()
                             .fill(AppTheme.cream)
                             .overlay {
@@ -54,8 +62,18 @@ struct HomeView: View {
                     .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Voice input")
-                .accessibilityHint("Voice input is not available yet")
+                .disabled(speechInput.isBusy)
+                .opacity(speechInput.isBusy ? 0.75 : 1)
+                .accessibilityLabel(
+                    speechInput.isListening
+                        ? "Stop voice input"
+                        : "Start voice input"
+                )
+                .accessibilityHint(
+                    speechInput.isListening
+                        ? "Stops recording and saves the note"
+                        : "Records an English note and saves it automatically"
+                )
 
                 Spacer(minLength: 0)
             }
@@ -63,5 +81,25 @@ struct HomeView: View {
         }
         .background(Color(.systemBackground))
         .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+private struct ListeningPulse: View {
+    var body: some View {
+        TimelineView(.animation) { context in
+            let duration = 1.25
+            let elapsed = context.date.timeIntervalSinceReferenceDate
+                .truncatingRemainder(dividingBy: duration)
+            let progress = elapsed / duration
+
+            Circle()
+                .stroke(
+                    AppTheme.accent.opacity(0.7 * (1 - progress)),
+                    lineWidth: 3
+                )
+                .scaleEffect(1 + progress * 0.36)
+        }
+        .frame(width: 161, height: 161)
+        .allowsHitTesting(false)
     }
 }
