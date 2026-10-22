@@ -4,6 +4,7 @@ struct NoteCard: View {
     let note: Note
     let width: CGFloat
     let onSelect: () -> Void
+    let onRequestDelete: () -> Void
 
     @ScaledMetric(relativeTo: .callout) private var estimatedLineHeight = 20.0
 
@@ -37,7 +38,13 @@ struct NoteCard: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button(role: .destructive, action: onRequestDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .accessibilityAction(named: "Delete", onRequestDelete)
         .accessibilityLabel(note.text)
-        .accessibilityHint("Open note for editing")
+        .accessibilityHint("Open note for editing. Long press to delete.")
     }
 }

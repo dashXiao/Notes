@@ -28,6 +28,15 @@ final class NotesStore: ObservableObject {
         notes.first { $0.id == id }
     }
 
+    func deleteNote(id: UUID) {
+        guard let index = notes.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        notes.remove(at: index)
+        persistNotes()
+    }
+
     @discardableResult
     func saveNote(id: UUID? = nil, text: String) -> Bool {
         let normalizedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
