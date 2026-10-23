@@ -3,6 +3,7 @@ import SwiftUI
 enum AppTab: Hashable {
     case home
     case notes
+    case schedule
 }
 
 private enum NoteRoute: Hashable {
@@ -10,14 +11,22 @@ private enum NoteRoute: Hashable {
     case edit(UUID)
 }
 
+private enum ScheduleRoute: Hashable {
+    case create
+    case edit(UUID)
+}
+
 struct RootView: View {
     @EnvironmentObject private var notesStore: NotesStore
+    @EnvironmentObject private var scheduleStore: ScheduleStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var speechInput = SpeechInputController()
 
     @State private var selectedTab: AppTab = .home
     @State private var homePath: [NoteRoute] = []
     @State private var notesPath: [NoteRoute] = []
+    @State private var schedulePath: [ScheduleRoute] = []
+    @State private var scheduleDay = Calendar.current.startOfDay(for: Date())
     @State private var isShowingNoteCreated = false
     @State private var noteCreatedToastTask: Task<Void, Never>?
 
@@ -27,6 +36,8 @@ struct RootView: View {
             homePath.isEmpty
         case .notes:
             notesPath.isEmpty
+        case .schedule:
+            schedulePath.isEmpty
         }
     }
 
@@ -56,6 +67,23 @@ struct RootView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
             .tag(AppTab.notes)
+
+            NavigationStack(path: $schedulePath) {
+                ScheduleView(
+                    day: $scheduleDay,
+                    onCreateSchedule: {
+                        schedulePath.append(.create)
+                    },
+                    onSelectSchedule: { scheduleID in
+                        schedulePath.append(.edit(scheduleID))
+                    }
+                )
+                .navigationDestination(for: ScheduleRoute.self) { route in
+                    scheduleDestination(for: route)
+                }
+                .toolbar(.hidden, for: .tabBar)
+            }
+            .tag(AppTab.schedule)
         }
         .tint(AppTheme.accent)
         .toolbar(.hidden, for: .tabBar)
@@ -86,6 +114,11 @@ struct RootView: View {
                 await speechInput.stopIfListening()
             }
         }
+        .onChange(of: selectedTab) { _, newTab in
+            if newTab == .schedule {
+                scheduleDay = Calendar.current.startOfDay(for: Date())
+            }
+        }
         .alert(
             "Voice Input Unavailable",
             isPresented: Binding(
@@ -112,6 +145,19 @@ struct RootView: View {
             EditNoteView(note: nil)
         case let .edit(noteID):
             EditNoteView(note: notesStore.note(with: noteID))
+        }
+    }
+
+    @ViewBuilder
+    private func scheduleDestination(for route: ScheduleRoute) -> some View {
+        switch route {
+        case .create:
+            ScheduleEditorView(item: nil, day: scheduleDay)
+        case let .edit(scheduleID):
+            ScheduleEditorView(
+                item: scheduleStore.item(with: scheduleID),
+                day: scheduleDay
+            )
         }
     }
 

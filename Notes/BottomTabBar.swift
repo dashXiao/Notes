@@ -15,6 +15,11 @@ struct BottomTabBar: View {
                 title: "Notes",
                 imageName: "NotesIcon"
             )
+            tabButton(
+                for: .schedule,
+                title: "Schedule",
+                imageName: "ScheduleIcon"
+            )
         }
         .frame(height: 52)
         .overlay(alignment: .top) {
