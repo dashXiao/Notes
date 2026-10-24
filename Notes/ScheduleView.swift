@@ -11,6 +11,8 @@ struct ScheduleView: View {
     @State private var pendingDay: Date?
     @State private var transitionDirection: DayTransitionDirection?
     @State private var isTransitioning = false
+    @State private var layoutMode: ScheduleLayoutMode = .singleDay
+    @State private var expandedOverviewDay: Date?
 
     init(
         day: Binding<Date>,
@@ -24,56 +26,73 @@ struct ScheduleView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let cardWidth = min(
-                342,
-                max(0, geometry.size.width - 60)
-            )
-            let progress = min(
-                1,
-                abs(dragTranslation) / max(geometry.size.height, 1)
-            )
-
             ZStack {
-                scheduleCard(for: day, width: cardWidth)
-                    .offset(y: currentCardOffset)
-                    .scaleEffect(1 - progress * 0.04)
-                    .opacity(1 - progress * 0.35)
+                if layoutMode == .singleDay {
+                    singleDayLayout(in: geometry.size)
+                        .transition(.opacity)
+                } else {
+                    overviewLayout(in: geometry.size)
+                        .opacity(expandedOverviewDay == nil ? 1 : 0)
+                        .transition(.opacity)
+                }
 
-                if let pendingDay {
-                    scheduleCard(for: pendingDay, width: cardWidth)
-                        .offset(
-                            y: incomingCardOffset(
-                                viewportHeight: geometry.size.height
-                            )
-                        )
-                        .scaleEffect(0.96 + progress * 0.04)
-                        .opacity(0.35 + progress * 0.65)
+                if let expandedOverviewDay {
+                    expandedOverviewLayout(
+                        for: expandedOverviewDay,
+                        in: geometry.size
+                    )
+                    .transition(.opacity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))
-            .contentShape(Rectangle())
-            .overlay(alignment: .topTrailing) {
-                Button(action: onCreateSchedule) {
-                    Image("NewScheduleIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 22, height: 22)
-                        .frame(width: 44, height: 44)
-                        .background(AppTheme.cream, in: Circle())
-                        .overlay {
-                            Circle()
-                                .stroke(AppTheme.accent, lineWidth: 1)
+            .overlay(alignment: .top) {
+                if expandedOverviewDay == nil {
+                    HStack {
+                        Button(action: toggleLayout) {
+                            Image(
+                                systemName: layoutMode == .singleDay
+                                    ? "rectangle.grid.2x2"
+                                    : "rectangle.portrait"
+                            )
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(AppTheme.accent)
+                            .frame(width: 44, height: 44)
+                            .background(AppTheme.cream, in: Circle())
+                            .overlay {
+                                Circle()
+                                    .stroke(AppTheme.accent, lineWidth: 1)
+                            }
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(
+                            layoutMode == .singleDay
+                                ? "Show all schedule days"
+                                : "Show single-day schedule"
+                        )
+
+                        Spacer()
+
+                        Button(action: onCreateSchedule) {
+                            Image("NewScheduleIcon")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                                .frame(width: 44, height: 44)
+                                .background(AppTheme.cream, in: Circle())
+                                .overlay {
+                                    Circle()
+                                        .stroke(AppTheme.accent, lineWidth: 1)
+                                }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Create schedule")
+                    }
+                    .padding(.horizontal, 30)
+                    .padding(.top, 20)
+                    .transition(.opacity)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Create schedule")
-                .padding(.top, 20)
-                .padding(.trailing, 30)
             }
-            .simultaneousGesture(
-                dayTransitionGesture(viewportHeight: geometry.size.height)
-            )
         }
         .background(Color(.systemBackground))
         .toolbar(.hidden, for: .navigationBar)
@@ -81,6 +100,156 @@ struct ScheduleView: View {
             .easeOut(duration: 0.2),
             value: scheduleStore.items
         )
+    }
+
+    private func singleDayLayout(in size: CGSize) -> some View {
+        let cardWidth = min(342, max(0, size.width - 60))
+        let progress = min(
+            1,
+            abs(dragTranslation) / max(size.height, 1)
+        )
+
+        return ZStack {
+            scheduleCard(for: day, width: cardWidth)
+                .offset(y: currentCardOffset)
+                .scaleEffect(1 - progress * 0.04)
+                .opacity(1 - progress * 0.35)
+
+            if let pendingDay {
+                scheduleCard(for: pendingDay, width: cardWidth)
+                    .offset(
+                        y: incomingCardOffset(
+                            viewportHeight: size.height
+                        )
+                    )
+                    .scaleEffect(0.96 + progress * 0.04)
+                    .opacity(0.35 + progress * 0.65)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .simultaneousGesture(
+            dayTransitionGesture(viewportHeight: size.height)
+        )
+    }
+
+    private func overviewLayout(in size: CGSize) -> some View {
+        let horizontalPadding = 12.0
+        let columnSpacing = 12.0
+        let cardWidth = (
+            size.width - horizontalPadding * 2 - columnSpacing
+        ) / 2
+        let days = scheduleDayGroups
+
+        return ScrollView {
+            if days.isEmpty {
+                Text("No schedules yet.")
+                    .font(.body)
+                    .foregroundStyle(AppTheme.inactive)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, size.height * 0.38)
+            } else {
+                HStack(alignment: .top, spacing: columnSpacing) {
+                    overviewColumn(
+                        indices: Array(
+                            stride(
+                                from: 0,
+                                to: days.count,
+                                by: 2
+                            )
+                        ),
+                        days: days,
+                        cardWidth: cardWidth
+                    )
+
+                    overviewColumn(
+                        indices: Array(
+                            stride(
+                                from: 1,
+                                to: days.count,
+                                by: 2
+                            )
+                        ),
+                        days: days,
+                        cardWidth: cardWidth
+                    )
+                }
+                .padding(.horizontal, horizontalPadding)
+                .padding(.top, 88)
+                .padding(.bottom, 24)
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func expandedOverviewLayout(
+        for expandedDay: Date,
+        in size: CGSize
+    ) -> some View {
+        ZStack {
+            Color.black
+                .opacity(0.22)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        expandedOverviewDay = nil
+                    }
+                }
+
+            scheduleCard(
+                for: expandedDay,
+                width: min(342, max(0, size.width - 60))
+            )
+            .transition(.scale(scale: 0.88).combined(with: .opacity))
+        }
+    }
+
+    private func overviewColumn(
+        indices: [Int],
+        days: [ScheduleDayGroup],
+        cardWidth: CGFloat
+    ) -> some View {
+        LazyVStack(spacing: 12) {
+            ForEach(indices, id: \.self) { index in
+                let group = days[index]
+
+                ScheduleOverviewCard(group: group) {
+                    withAnimation(.spring(response: 0.34, dampingFraction: 0.86)) {
+                        expandedOverviewDay = group.day
+                    }
+                }
+                .frame(width: cardWidth)
+            }
+        }
+        .frame(width: cardWidth)
+    }
+
+    private var scheduleDayGroups: [ScheduleDayGroup] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(
+            grouping: scheduleStore.items
+        ) {
+            calendar.startOfDay(for: $0.scheduledAt)
+        }
+
+        return grouped.keys.sorted().map { date in
+            ScheduleDayGroup(
+                day: date,
+                items: (grouped[date] ?? []).sorted {
+                    $0.scheduledAt < $1.scheduledAt
+                }
+            )
+        }
+    }
+
+    private func toggleLayout() {
+        expandedOverviewDay = nil
+        withAnimation(.easeOut(duration: 0.2)) {
+            layoutMode = layoutMode == .singleDay
+                ? .overview
+                : .singleDay
+        }
     }
 
     @ViewBuilder
@@ -322,12 +491,123 @@ private struct ScheduleCard: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(AppTheme.accent, lineWidth: 1)
         }
     }
+}
+
+private struct ScheduleOverviewCard: View {
+    let group: ScheduleDayGroup
+    let onSelectDay: () -> Void
+
+    @ScaledMetric(relativeTo: .headline) private var headingSize = 18.0
+
+    var body: some View {
+        Button(action: onSelectDay) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 5) {
+                    Text(
+                        group.day.formatted(
+                            .dateTime.month(.abbreviated).day()
+                        )
+                    )
+                    .font(
+                        .system(
+                            size: headingSize,
+                            weight: .bold
+                        )
+                    )
+                    .foregroundStyle(Color(.label))
+
+                    if Calendar.current.isDateInToday(group.day) {
+                        Text("Today")
+                            .font(
+                                .system(
+                                    size: headingSize,
+                                    weight: .medium,
+                                    design: .serif
+                                )
+                                .italic()
+                            )
+                            .foregroundStyle(
+                                Color(
+                                    red: 1,
+                                    green: 0.3,
+                                    blue: 0.1
+                                )
+                            )
+                    }
+                }
+                .lineLimit(1)
+
+                VStack(alignment: .leading, spacing: 7) {
+                    ForEach(
+                        Array(group.items.prefix(3).enumerated()),
+                        id: \.element.id
+                    ) { index, item in
+                        let showsOverflow = index == 2
+                            && group.items.count > 3
+
+                        HStack(alignment: .top, spacing: 8) {
+                            Text(
+                                item.scheduledAt.formatted(
+                                    .dateTime
+                                        .hour(
+                                            .twoDigits(amPM: .omitted)
+                                        )
+                                        .minute(.twoDigits)
+                                )
+                            )
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color(.label))
+                            .frame(width: 34, alignment: .leading)
+
+                            Text(
+                                item.title
+                                    + (showsOverflow ? " …" : "")
+                            )
+                            .font(.footnote)
+                            .foregroundStyle(Color(.secondaryLabel))
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .frame(
+                                maxWidth: .infinity,
+                                alignment: .leading
+                            )
+                        }
+                    }
+                }
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(AppTheme.accent, lineWidth: 1)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(
+            "\(group.day.formatted(.dateTime.month(.wide).day())), "
+                + "\(group.items.count) schedules"
+        )
+        .accessibilityHint("Open all schedules for this day")
+    }
+}
+
+private enum ScheduleLayoutMode {
+    case singleDay
+    case overview
+}
+
+private struct ScheduleDayGroup {
+    let day: Date
+    let items: [ScheduleItem]
 }
 
 private enum DayTransitionDirection {
