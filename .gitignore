@@ -13,3 +13,8 @@ xcuserdata/
 
 # Local secrets
 Config/Secrets.xcconfig
+
+# Local project documentation
+/AGENTS.md
+/Docs/Architecture.md
+/Docs/Features.md
