@@ -71,8 +71,9 @@ struct RootView: View {
         .tint(AppTheme.accent)
         .toolbar(.hidden, for: .tabBar)
         .overlay(alignment: .top) {
-            if let message = toastPresenter.message {
-                SuccessToastView(message: message)
+            if let toast = toastPresenter.toast {
+                toastView(toast)
+                    .id(toast.id)
                     .padding(.top, 12)
                     .transition(
                         .move(edge: .top)
@@ -95,7 +96,7 @@ struct RootView: View {
             }
         }
         .onChange(of: selectedTab) { _, newTab in
-            if newTab == .schedule {
+            if newTab == .schedule && schedulePath.isEmpty {
                 scheduleDay = Calendar.current.startOfDay(for: Date())
             }
         }
@@ -115,6 +116,32 @@ struct RootView: View {
             }
         } message: {
             Text(speechInput.errorMessage ?? "")
+        }
+    }
+
+    @ViewBuilder
+    private func toastView(_ toast: ToastPresenter.Toast) -> some View {
+        switch toast.content {
+        case let .message(message):
+            SuccessToastView(message: message)
+        case let .schedule(change):
+            ScheduleSavedToastView(
+                change: change,
+                onEdit: {
+                    guard toastPresenter.dismiss(id: toast.id),
+                          let item = scheduleStore.item(with: change.item.id) else {
+                        return
+                    }
+                    scheduleDay = Calendar.current.startOfDay(for: item.scheduledAt)
+                    schedulePath = [.edit(item.id)]
+                    selectedTab = .schedule
+                },
+                onCancel: {
+                    guard toastPresenter.dismiss(id: toast.id) else { return }
+                    scheduleStore.undoInferredChange(change)
+                }
+            )
+            .padding(.horizontal, 16)
         }
     }
 

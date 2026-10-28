@@ -16,6 +16,7 @@ swift_compiler="$developer_dir/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift
     Notes/Features/Notes/Stores/NotesStore.swift \
     Notes/Features/Notes/Presentation/NoteEditorModel.swift \
     Notes/Features/Schedule/Models/ScheduleItem.swift \
+    Notes/Features/Schedule/Models/InferredScheduleChange.swift \
     Notes/Features/Schedule/Models/ScheduleDayGroup.swift \
     Notes/Features/Schedule/Stores/ScheduleStore.swift \
     Notes/Features/Schedule/Presentation/ScheduleEditorModel.swift \
@@ -25,6 +26,7 @@ swift_compiler="$developer_dir/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift
     Notes/Services/ScheduleExtraction/ScheduleIntentDetector.swift \
     Notes/Services/ScheduleExtraction/DeepSeek/*.swift \
     Notes/App/Workflows/NoteCaptureCoordinator.swift \
+    Notes/App/Presentation/ToastPresenter.swift \
     Tests/ArchitectureRegression.swift \
     -o "$test_build/ArchitectureRegression"
 "$test_build/ArchitectureRegression"

@@ -37,8 +37,8 @@ final class AppDependencies: ObservableObject {
                 switch event {
                 case .voiceNoteCreated:
                     toastPresenter?.show("Note created")
-                case .scheduleCreated:
-                    toastPresenter?.show("Schedule created")
+                case let .scheduleSaved(change):
+                    toastPresenter?.showSchedule(change)
                 }
             }
             .store(in: &subscriptions)

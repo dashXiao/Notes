@@ -3,7 +3,7 @@ import Foundation
 
 enum NoteCaptureEvent {
     case voiceNoteCreated
-    case scheduleCreated
+    case scheduleSaved(InferredScheduleChange)
 }
 
 @MainActor
@@ -73,15 +73,15 @@ final class NoteCaptureCoordinator: ObservableObject {
                       self.notesStore.note(with: note.id) == note,
                       let extracted,
                       self.isValid(extracted, referenceDate: note.updatedAt),
-                      self.scheduleStore.saveInferredItem(
+                      let change = self.scheduleStore.saveInferredItem(
                           sourceNoteID: note.id,
                           title: extracted.title,
                           scheduledAt: extracted.scheduledAt,
                           timeIsPending: extracted.timeIsPending
-                      ) != nil else {
+                      ) else {
                     return
                 }
-                self.events.send(.scheduleCreated)
+                self.events.send(.scheduleSaved(change))
             } catch {
                 // Remote analysis must never interrupt a locally saved note.
             }

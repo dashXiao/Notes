@@ -46,7 +46,7 @@ final class ScheduleStore: ObservableObject {
         title: String,
         scheduledAt: Date,
         timeIsPending: Bool
-    ) -> ScheduleItem? {
+    ) -> InferredScheduleChange? {
         let normalizedTitle = title.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
@@ -56,16 +56,19 @@ final class ScheduleStore: ObservableObject {
 
         let now = Date()
         let item: ScheduleItem
+        let previousItem: ScheduleItem?
 
         if let index = items.firstIndex(where: {
             $0.sourceNoteID == sourceNoteID
         }) {
+            previousItem = items[index]
             items[index].scheduledAt = scheduledAt
             items[index].title = normalizedTitle
             items[index].timeIsPending = timeIsPending ? true : nil
             items[index].updatedAt = now
             item = items[index]
         } else {
+            previousItem = nil
             let newItem = ScheduleItem(
                 id: UUID(),
                 scheduledAt: scheduledAt,
@@ -81,7 +84,24 @@ final class ScheduleStore: ObservableObject {
 
         sortItems()
         persistItems()
-        return item
+        return InferredScheduleChange(item: item, previousItem: previousItem)
+    }
+
+    @discardableResult
+    func undoInferredChange(_ change: InferredScheduleChange) -> Bool {
+        // A dismissed notification must not undo a newer edit to the same item.
+        guard let index = items.firstIndex(where: { $0.id == change.item.id }),
+              items[index] == change.item else {
+            return false
+        }
+        if let previousItem = change.previousItem {
+            items[index] = previousItem
+        } else {
+            items.remove(at: index)
+        }
+        sortItems()
+        persistItems()
+        return true
     }
 
     func deleteItem(id: UUID) {
