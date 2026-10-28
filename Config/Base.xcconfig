@@ -1,0 +1,4 @@
+DEEPSEEK_MODEL = deepseek-flash
+DEEPSEEK_API_KEY =
+
+#include? "Secrets.xcconfig"

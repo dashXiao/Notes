@@ -29,11 +29,55 @@ final class ScheduleStore: ObservableObject {
             .filter {
                 Calendar.current.isDate($0.scheduledAt, inSameDayAs: day)
             }
-            .sorted { $0.scheduledAt < $1.scheduledAt }
+            .sorted(by: isOrderedBefore)
     }
 
     func item(with id: UUID) -> ScheduleItem? {
         items.first { $0.id == id }
+    }
+
+    @discardableResult
+    func saveInferredItem(
+        sourceNoteID: UUID,
+        title: String,
+        scheduledAt: Date,
+        timeIsPending: Bool
+    ) -> ScheduleItem? {
+        let normalizedTitle = title.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !normalizedTitle.isEmpty else {
+            return nil
+        }
+
+        let now = Date()
+        let item: ScheduleItem
+
+        if let index = items.firstIndex(where: {
+            $0.sourceNoteID == sourceNoteID
+        }) {
+            items[index].scheduledAt = scheduledAt
+            items[index].title = normalizedTitle
+            items[index].timeIsPending = timeIsPending ? true : nil
+            items[index].updatedAt = now
+            item = items[index]
+        } else {
+            let newItem = ScheduleItem(
+                id: UUID(),
+                scheduledAt: scheduledAt,
+                title: normalizedTitle,
+                timeIsPending: timeIsPending ? true : nil,
+                sourceNoteID: sourceNoteID,
+                createdAt: now,
+                updatedAt: now
+            )
+            items.append(newItem)
+            item = newItem
+        }
+
+        sortItems()
+        persistItems()
+        return item
     }
 
     func deleteItem(id: UUID) {
@@ -49,7 +93,8 @@ final class ScheduleStore: ObservableObject {
     func saveItem(
         id: UUID? = nil,
         scheduledAt: Date,
-        title: String
+        title: String,
+        timeIsPending: Bool = false
     ) -> Bool {
         let normalizedTitle = title.trimmingCharacters(
             in: .whitespacesAndNewlines
@@ -63,6 +108,7 @@ final class ScheduleStore: ObservableObject {
         if let id, let index = items.firstIndex(where: { $0.id == id }) {
             items[index].scheduledAt = scheduledAt
             items[index].title = normalizedTitle
+            items[index].timeIsPending = timeIsPending ? true : nil
             items[index].updatedAt = now
         } else {
             items.append(
@@ -70,6 +116,7 @@ final class ScheduleStore: ObservableObject {
                     id: UUID(),
                     scheduledAt: scheduledAt,
                     title: normalizedTitle,
+                    timeIsPending: timeIsPending ? true : nil,
                     createdAt: now,
                     updatedAt: now
                 )
@@ -91,12 +138,24 @@ final class ScheduleStore: ObservableObject {
     }
 
     private func sortItems() {
-        items.sort {
-            if $0.scheduledAt == $1.scheduledAt {
-                return $0.createdAt < $1.createdAt
-            }
-            return $0.scheduledAt < $1.scheduledAt
+        items.sort(by: isOrderedBefore)
+    }
+
+    private func isOrderedBefore(
+        _ lhs: ScheduleItem,
+        _ rhs: ScheduleItem
+    ) -> Bool {
+        let lhsIsPending = lhs.timeIsPending == true
+        let rhsIsPending = rhs.timeIsPending == true
+
+        if lhsIsPending != rhsIsPending {
+            return lhsIsPending
         }
+
+        if lhs.scheduledAt == rhs.scheduledAt {
+            return lhs.createdAt < rhs.createdAt
+        }
+        return lhs.scheduledAt < rhs.scheduledAt
     }
 
     private func persistItems() {

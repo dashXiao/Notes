@@ -10,3 +10,6 @@ xcuserdata/
 # Swift Package Manager
 .build/
 .swiftpm/
+
+# Local secrets
+Config/Secrets.xcconfig

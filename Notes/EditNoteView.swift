@@ -69,6 +69,7 @@ struct EditNoteView: View {
                         .opacity(canSave ? 1 : 0.35)
                 }
                 .disabled(!canSave)
+                .keyboardShortcut("s", modifiers: .command)
                 .accessibilityLabel("Save note")
             }
             .sharedBackgroundVisibility(.hidden)
@@ -81,7 +82,7 @@ struct EditNoteView: View {
     }
 
     private func save() {
-        guard notesStore.saveNote(id: noteID, text: text) else {
+        guard notesStore.saveNote(id: noteID, text: text) != nil else {
             return
         }
 

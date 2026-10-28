@@ -4,6 +4,7 @@ import Foundation
 @MainActor
 final class NotesStore: ObservableObject {
     @Published private(set) var notes: [Note] = []
+    @Published private(set) var lastSavedNote: Note?
 
     private let storageDirectory: URL
     private var storageURL: URL {
@@ -38,31 +39,33 @@ final class NotesStore: ObservableObject {
     }
 
     @discardableResult
-    func saveNote(id: UUID? = nil, text: String) -> Bool {
+    func saveNote(id: UUID? = nil, text: String) -> Note? {
         let normalizedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedText.isEmpty else {
-            return false
+            return nil
         }
 
         let now = Date()
+        let savedNote: Note
 
         if let id, let index = notes.firstIndex(where: { $0.id == id }) {
             notes[index].text = normalizedText
             notes[index].updatedAt = now
+            savedNote = notes[index]
         } else {
-            notes.append(
-                Note(
-                    id: UUID(),
-                    text: normalizedText,
-                    createdAt: now,
-                    updatedAt: now
-                )
+            savedNote = Note(
+                id: UUID(),
+                text: normalizedText,
+                createdAt: now,
+                updatedAt: now
             )
+            notes.append(savedNote)
         }
 
         notes.sort { $0.updatedAt > $1.updatedAt }
         persistNotes()
-        return true
+        lastSavedNote = savedNote
+        return savedNote
     }
 
     private func loadNotes() {

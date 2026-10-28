@@ -553,15 +553,7 @@ private struct ScheduleOverviewCard: View {
                             && group.items.count > 3
 
                         HStack(alignment: .top, spacing: 8) {
-                            Text(
-                                item.scheduledAt.formatted(
-                                    .dateTime
-                                        .hour(
-                                            .twoDigits(amPM: .omitted)
-                                        )
-                                        .minute(.twoDigits)
-                                )
-                            )
+                            Text(scheduleTimeText(item))
                             .font(.caption2)
                             .fontWeight(.semibold)
                             .foregroundStyle(Color(.label))
@@ -652,13 +644,7 @@ private struct SwipeableScheduleRow: View {
             .accessibilityHidden(!isOpen)
 
             HStack(alignment: .top, spacing: 12) {
-                Text(
-                    item.scheduledAt.formatted(
-                        .dateTime
-                            .hour(.twoDigits(amPM: .omitted))
-                            .minute(.twoDigits)
-                    )
-                )
+                Text(scheduleTimeText(item))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color(.label))
@@ -733,4 +719,14 @@ private struct SwipeableScheduleRow: View {
         }
         dragStartOffset = 0
     }
+}
+
+private func scheduleTimeText(_ item: ScheduleItem) -> String {
+    item.timeIsPending == true
+        ? "TBD"
+        : item.scheduledAt.formatted(
+            .dateTime
+                .hour(.twoDigits(amPM: .omitted))
+                .minute(.twoDigits)
+        )
 }

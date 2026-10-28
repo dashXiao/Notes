@@ -21,14 +21,15 @@ struct RootView: View {
     @EnvironmentObject private var scheduleStore: ScheduleStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var speechInput = SpeechInputController()
+    @StateObject private var noteScheduleCoordinator = NoteScheduleCoordinator()
 
     @State private var selectedTab: AppTab = .home
     @State private var homePath: [NoteRoute] = []
     @State private var notesPath: [NoteRoute] = []
     @State private var schedulePath: [ScheduleRoute] = []
     @State private var scheduleDay = Calendar.current.startOfDay(for: Date())
-    @State private var isShowingNoteCreated = false
-    @State private var noteCreatedToastTask: Task<Void, Never>?
+    @State private var toast: SuccessToast?
+    @State private var toastTask: Task<Void, Never>?
 
     private var isShowingTabBar: Bool {
         switch selectedTab {
@@ -88,8 +89,8 @@ struct RootView: View {
         .tint(AppTheme.accent)
         .toolbar(.hidden, for: .tabBar)
         .overlay(alignment: .top) {
-            if isShowingNoteCreated {
-                NoteCreatedToast()
+            if let toast {
+                SuccessToastView(message: toast.message)
                     .padding(.top, 12)
                     .transition(
                         .move(edge: .top)
@@ -104,6 +105,22 @@ struct RootView: View {
         }
         .onChange(of: speechInput.completedText) { _, transcript in
             saveVoiceNote(transcript)
+        }
+        .onChange(of: notesStore.lastSavedNote) { _, note in
+            guard let note else {
+                return
+            }
+            noteScheduleCoordinator.process(
+                note: note,
+                scheduleStore: scheduleStore
+            )
+        }
+        .onChange(of: noteScheduleCoordinator.createdSchedule) { _, item in
+            guard item != nil else {
+                return
+            }
+            noteScheduleCoordinator.consumeCreatedSchedule()
+            showToast("Schedule created")
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase != .active else {
@@ -163,37 +180,46 @@ struct RootView: View {
 
     private func saveVoiceNote(_ transcript: String?) {
         guard let transcript,
-              notesStore.saveNote(text: transcript) else {
+              notesStore.saveNote(text: transcript) != nil else {
             return
         }
 
         speechInput.consumeCompletedText()
-        noteCreatedToastTask?.cancel()
+        showToast("Note created")
+    }
 
+    private func showToast(_ message: String) {
+        toastTask?.cancel()
         withAnimation(.easeOut(duration: 0.2)) {
-            isShowingNoteCreated = true
+            toast = SuccessToast(message: message)
         }
 
-        noteCreatedToastTask = Task {
+        toastTask = Task {
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else {
                 return
             }
 
             withAnimation(.easeIn(duration: 0.2)) {
-                isShowingNoteCreated = false
+                toast = nil
             }
         }
     }
 }
 
-private struct NoteCreatedToast: View {
+private struct SuccessToast: Equatable {
+    let message: String
+}
+
+private struct SuccessToastView: View {
+    let message: String
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(AppTheme.accent)
 
-            Text("Note created")
+            Text(message)
                 .font(.callout)
                 .foregroundStyle(AppTheme.accent)
         }

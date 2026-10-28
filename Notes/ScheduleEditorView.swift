@@ -9,6 +9,7 @@ struct ScheduleEditorView: View {
     @State private var day: Date
     @State private var time: Date
     @State private var title: String
+    @State private var isTimePending: Bool
     @FocusState private var isTitleFocused: Bool
 
     init(item: ScheduleItem?, day: Date) {
@@ -22,6 +23,9 @@ struct ScheduleEditorView: View {
                 ?? Self.defaultTime(for: initialDay)
         )
         _title = State(initialValue: item?.title ?? "")
+        _isTimePending = State(
+            initialValue: item?.timeIsPending == true
+        )
     }
 
     private var canSave: Bool {
@@ -41,11 +45,15 @@ struct ScheduleEditorView: View {
             }
 
             Section {
-                DatePicker(
-                    "Starts",
-                    selection: $time,
-                    displayedComponents: .hourAndMinute
-                )
+                Toggle("Time TBD", isOn: $isTimePending)
+
+                if !isTimePending {
+                    DatePicker(
+                        "Starts",
+                        selection: $time,
+                        displayedComponents: .hourAndMinute
+                    )
+                }
             } header: {
                 Text("Time")
             }
@@ -114,16 +122,21 @@ struct ScheduleEditorView: View {
             from: time
         )
 
-        guard let scheduledAt = calendar.date(
-            bySettingHour: timeComponents.hour ?? 0,
-            minute: timeComponents.minute ?? 0,
-            second: 0,
-            of: day
-        ),
+        let scheduledAt = isTimePending
+            ? calendar.startOfDay(for: day)
+            : calendar.date(
+                bySettingHour: timeComponents.hour ?? 0,
+                minute: timeComponents.minute ?? 0,
+                second: 0,
+                of: day
+            )
+
+        guard let scheduledAt,
         scheduleStore.saveItem(
             id: scheduleID,
             scheduledAt: scheduledAt,
-            title: title
+            title: title,
+            timeIsPending: isTimePending
         ) else {
             return
         }
