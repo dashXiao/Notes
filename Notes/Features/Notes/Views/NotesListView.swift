@@ -11,9 +11,9 @@ struct NotesListView: View {
         GeometryReader { geometry in
             let horizontalPadding = 12.0
             let columnSpacing = 12.0
-            let cardWidth = (
+            let cardWidth = max(0, (
                 geometry.size.width - horizontalPadding * 2 - columnSpacing
-            ) / 2
+            ) / 2)
 
             ScrollView {
                 if notesStore.notes.isEmpty {
@@ -22,29 +22,20 @@ struct NotesListView: View {
                         .foregroundStyle(AppTheme.inactive)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 48)
-                } else {
-                    HStack(alignment: .top, spacing: columnSpacing) {
-                        noteColumn(
-                            indices: Array(
-                                stride(
-                                    from: 0,
-                                    to: notesStore.notes.count,
-                                    by: 2
-                                )
-                            ),
-                            cardWidth: cardWidth
-                        )
-
-                        noteColumn(
-                            indices: Array(
-                                stride(
-                                    from: 1,
-                                    to: notesStore.notes.count,
-                                    by: 2
-                                )
-                            ),
-                            cardWidth: cardWidth
-                        )
+                } else if cardWidth > 0 {
+                    NotesMasonryLayout(columnWidth: cardWidth, spacing: columnSpacing) {
+                        ForEach(notesStore.notes) { note in
+                            NoteCard(
+                                note: note,
+                                width: cardWidth,
+                                onSelect: {
+                                    onSelectNote(note.id)
+                                },
+                                onRequestDelete: {
+                                    notePendingDeletion = note
+                                }
+                            )
+                        }
                     }
                     .padding(.horizontal, horizontalPadding)
                     .padding(.top, 36)
@@ -79,28 +70,5 @@ struct NotesListView: View {
                 notePendingDeletion = nil
             }
         }
-    }
-
-    private func noteColumn(
-        indices: [Int],
-        cardWidth: CGFloat
-    ) -> some View {
-        LazyVStack(spacing: 12) {
-            ForEach(indices, id: \.self) { index in
-                let note = notesStore.notes[index]
-
-                NoteCard(
-                    note: note,
-                    width: cardWidth,
-                    onSelect: {
-                        onSelectNote(note.id)
-                    },
-                    onRequestDelete: {
-                        notePendingDeletion = note
-                    }
-                )
-            }
-        }
-        .frame(width: cardWidth)
     }
 }

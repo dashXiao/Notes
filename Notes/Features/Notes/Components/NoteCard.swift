@@ -9,12 +9,17 @@ struct NoteCard: View {
     @ScaledMetric(relativeTo: .callout) private var estimatedLineHeight = 20.0
     @ScaledMetric(relativeTo: .caption2) private var metadataHeight = 14.0
 
-    private var maximumHeight: CGFloat {
-        width * 1.3
+    private var heightRange: ClosedRange<CGFloat> {
+        // A stable seed keeps card proportions unchanged across redraws and launches.
+        let seed = note.id.uuidString.utf8.reduce(UInt64(5381)) { ($0 &* 33) &+ UInt64($1) }
+        let minimumVariation = CGFloat(seed % 101) / 100
+        let maximumVariation = CGFloat((seed / 101) % 101) / 100
+        return (width * (0.65 + minimumVariation * 0.35))
+            ... (width * (1.3 + maximumVariation * 0.3))
     }
 
     private var maximumLineCount: Int {
-        max(1, Int((maximumHeight - 44 - metadataHeight) / estimatedLineHeight))
+        max(1, Int((heightRange.upperBound - 44 - metadataHeight) / estimatedLineHeight))
     }
 
     var body: some View {
@@ -30,8 +35,8 @@ struct NoteCard: View {
                 .padding(.bottom, 16)
                 .frame(
                     maxWidth: .infinity,
-                    minHeight: width,
-                    maxHeight: maximumHeight,
+                    minHeight: heightRange.lowerBound,
+                    maxHeight: heightRange.upperBound,
                     alignment: .center
                 )
                 .overlay(alignment: .topLeading) {
