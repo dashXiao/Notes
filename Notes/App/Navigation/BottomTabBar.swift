@@ -8,27 +8,25 @@ struct BottomTabBar: View {
             tabButton(
                 for: .home,
                 title: "Home",
-                imageName: "HomeIcon"
+                symbol: "house",
+                selectedSymbol: "house.fill"
             )
             tabButton(
                 for: .notes,
                 title: "Notes",
-                imageName: "NotesIcon"
+                symbol: "square.stack",
+                selectedSymbol: "square.stack.fill"
             )
             tabButton(
                 for: .schedule,
                 title: "Schedule",
-                imageName: "ScheduleIcon"
+                symbol: "calendar",
+                selectedSymbol: "calendar"
             )
         }
-        .frame(height: 52)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(AppTheme.bottomBorder)
-                .frame(height: 1)
-        }
+        .frame(height: 60)
         .background {
-            Color(.systemBackground)
+            AppTheme.surface
                 .ignoresSafeArea(edges: .bottom)
         }
     }
@@ -36,36 +34,33 @@ struct BottomTabBar: View {
     private func tabButton(
         for tab: AppTab,
         title: String,
-        imageName: String
+        symbol: String,
+        selectedSymbol: String
     ) -> some View {
         let isSelected = selection == tab
 
         return Button {
             selection = tab
         } label: {
-            VStack(spacing: 4) {
-                Image(imageName)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
+            VStack(spacing: 5) {
+                AppIcon(
+                    systemName: isSelected ? selectedSymbol : symbol,
+                    size: 24,
+                    weight: isSelected ? .semibold : .regular
+                )
+                .foregroundStyle(isSelected ? AppTheme.accent : AppTheme.inactive)
 
                 Text(title)
-                    .font(.callout)
+                    .font(.caption2.weight(isSelected ? .semibold : .medium))
             }
             .foregroundStyle(
-                isSelected ? AppTheme.accent : AppTheme.inactive
+                isSelected ? AppTheme.accentInk : AppTheme.inactive
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background {
-                if isSelected {
-                    AppTheme.cream
-                        .ignoresSafeArea(edges: .bottom)
-                }
-            }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

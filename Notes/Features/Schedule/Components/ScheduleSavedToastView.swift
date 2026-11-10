@@ -10,12 +10,13 @@ struct ScheduleSavedToastView: View {
             Button(action: onEdit) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
-                        Image(systemName: "calendar")
+                        AppIcon(systemName: "calendar", size: 13)
                         Text(ScheduleFormatting.toastDateText(change.item))
                         Text("·")
                         Text(ScheduleFormatting.toastTimeText(change.item))
                     }
                     .font(.caption)
+                    .foregroundStyle(AppTheme.accentInk)
 
                     Text(change.item.title)
                         .font(.subheadline.weight(.medium))
@@ -31,8 +32,8 @@ struct ScheduleSavedToastView: View {
             .accessibilityHint("Edit this schedule")
 
             Button(action: onCancel) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 15, weight: .semibold))
+                AppIcon(systemName: "xmark.circle.fill", size: 23)
+                    .foregroundStyle(AppTheme.inactive)
                     .frame(width: 48)
                     .frame(maxHeight: .infinity)
                     .contentShape(Rectangle())
@@ -42,12 +43,9 @@ struct ScheduleSavedToastView: View {
                 ? "Cancel schedule creation" : "Undo schedule update")
         }
         .fixedSize(horizontal: false, vertical: true)
-        .foregroundStyle(AppTheme.accent)
-        .background(AppTheme.cream)
+        .foregroundStyle(AppTheme.textPrimary)
+        .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius)
-                .stroke(AppTheme.accent, lineWidth: 1)
-        }
+        .shadow(color: AppTheme.textPrimary.opacity(0.1), radius: 18, y: 6)
     }
 }

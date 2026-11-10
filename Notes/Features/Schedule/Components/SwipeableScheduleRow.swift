@@ -23,13 +23,15 @@ struct SwipeableScheduleRow: View {
                 }
                 onDelete()
             } label: {
-                Text("Delete")
-                    .font(.callout)
-                    .fontWeight(.semibold)
+                VStack(spacing: 4) {
+                    AppIcon(systemName: "trash.fill", size: 17)
+                    Text("Delete")
+                        .font(.caption2.weight(.semibold))
+                }
                     .foregroundStyle(.white)
                     .frame(width: actionWidth)
                     .frame(maxHeight: .infinity)
-                    .background(Color.red)
+                    .background(AppTheme.destructive)
             }
             .buttonStyle(.plain)
             .opacity(isOpen ? 1 : 0)
@@ -38,20 +40,22 @@ struct SwipeableScheduleRow: View {
 
             HStack(alignment: .top, spacing: 12) {
                 Text(ScheduleFormatting.timeText(item))
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color(.label))
-                .frame(width: 48, alignment: .leading)
+                .font(.caption.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(AppTheme.accentInk)
+                .frame(width: 56)
+                .frame(minHeight: 32)
+                .background(AppTheme.accentTint, in: RoundedRectangle(cornerRadius: 9))
 
                 Text(item.title)
                     .font(.callout)
-                    .foregroundStyle(Color(.secondaryLabel))
+                    .foregroundStyle(AppTheme.textPrimary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, 4)
             .contentShape(Rectangle())
-            .background(Color(.systemBackground))
+            .background(AppTheme.surface)
             .offset(x: offset)
             .onTapGesture {
                 if isOpen {
@@ -103,7 +107,7 @@ struct SwipeableScheduleRow: View {
                     }
             )
         }
-        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     private func closeAction() {

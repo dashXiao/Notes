@@ -26,7 +26,7 @@ struct NoteCard: View {
         Button(action: onSelect) {
             Text(note.text)
                 .font(.callout)
-                .foregroundStyle(AppTheme.accent)
+                .foregroundStyle(AppTheme.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineLimit(maximumLineCount)
                 .truncationMode(.tail)
@@ -42,17 +42,14 @@ struct NoteCard: View {
                 .overlay(alignment: .topLeading) {
                     Text(NoteFormatting.cardDateText(note))
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.inactive)
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                         .padding(.horizontal, 12)
                         .padding(.top, 12)
                 }
-                .overlay {
-                    Rectangle()
-                        .stroke(AppTheme.accent, lineWidth: 1)
-                }
-                .contentShape(Rectangle())
+                .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
+                .contentShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
         }
         .buttonStyle(.plain)
         .contextMenu {

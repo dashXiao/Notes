@@ -14,7 +14,7 @@ struct ScheduleSingleDayLayout: View {
     @State private var isTransitioning = false
 
     var body: some View {
-        let cardWidth = min(342, max(0, size.width - 60))
+        let cardWidth = min(520, max(0, size.width - AppTheme.pageInset * 2))
         let progress = min(
             1,
             abs(dragTranslation) / max(size.height, 1)

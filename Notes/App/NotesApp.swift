@@ -7,6 +7,7 @@ struct NotesApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environmentObject(dependencies.homePrompt)
                 .environmentObject(dependencies.notesStore)
                 .environmentObject(dependencies.scheduleStore)
                 .environmentObject(dependencies.speechInput)

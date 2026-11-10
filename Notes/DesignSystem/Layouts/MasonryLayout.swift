@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct NotesMasonryLayout: Layout {
+struct MasonryLayout: Layout {
     let columnWidth: CGFloat
     let spacing: CGFloat
 

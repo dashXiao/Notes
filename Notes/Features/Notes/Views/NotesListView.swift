@@ -9,8 +9,8 @@ struct NotesListView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let horizontalPadding = 12.0
-            let columnSpacing = 12.0
+            let horizontalPadding = AppTheme.pageInset
+            let columnSpacing = AppTheme.cardSpacing
             let cardWidth = max(0, (
                 geometry.size.width - horizontalPadding * 2 - columnSpacing
             ) / 2)
@@ -23,7 +23,7 @@ struct NotesListView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 48)
                 } else if cardWidth > 0 {
-                    NotesMasonryLayout(columnWidth: cardWidth, spacing: columnSpacing) {
+                    MasonryLayout(columnWidth: cardWidth, spacing: columnSpacing) {
                         ForEach(notesStore.notes) { note in
                             NoteCard(
                                 note: note,
@@ -38,13 +38,31 @@ struct NotesListView: View {
                         }
                     }
                     .padding(.horizontal, horizontalPadding)
-                    .padding(.top, 36)
-                    .padding(.bottom, 24)
+                    .padding(.top, 2)
+                    .padding(.bottom, 16)
                 }
             }
             .scrollIndicators(.hidden)
         }
-        .background(Color(.systemBackground))
+        .background(AppTheme.canvas)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            HStack {
+                Text("Notes")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(AppTheme.textPrimary)
+                Spacer()
+                Text("\(notesStore.notes.count) \(notesStore.notes.count == 1 ? "note" : "notes")")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.accentInk)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 7)
+                    .background(AppTheme.accentTint, in: Capsule())
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 16)
+            .background(AppTheme.canvas)
+        }
         .toolbar(.hidden, for: .navigationBar)
         .alert(
             "Delete Note?",

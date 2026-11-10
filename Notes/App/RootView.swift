@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @EnvironmentObject private var homePrompt: HomePromptModel
     @EnvironmentObject private var notesStore: NotesStore
     @EnvironmentObject private var scheduleStore: ScheduleStore
     @Environment(\.scenePhase) private var scenePhase
@@ -29,6 +30,7 @@ struct RootView: View {
             NavigationStack(path: $homePath) {
                 HomeView(
                     speechInput: speechInput,
+                    prompt: homePrompt.prompt,
                     onCreateNote: {
                         homePath.append(.create)
                     }
@@ -69,6 +71,7 @@ struct RootView: View {
             .tag(AppTab.schedule)
         }
         .tint(AppTheme.accent)
+        .preferredColorScheme(.light)
         .toolbar(.hidden, for: .tabBar)
         .overlay(alignment: .top) {
             if let toast = toastPresenter.toast {
@@ -87,6 +90,12 @@ struct RootView: View {
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                homePrompt.appDidEnterBackground()
+            }
+            if newPhase == .active {
+                homePrompt.appDidBecomeActive()
+            }
             guard newPhase != .active else {
                 return
             }

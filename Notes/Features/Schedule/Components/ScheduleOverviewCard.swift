@@ -21,7 +21,7 @@ struct ScheduleOverviewCard: View {
                             Text(ScheduleFormatting.timeText(item))
                             .font(.caption2)
                             .fontWeight(.semibold)
-                            .foregroundStyle(Color(.label))
+                            .foregroundStyle(AppTheme.accentInk)
                             .frame(width: 34, alignment: .leading)
 
                             Text(
@@ -29,7 +29,7 @@ struct ScheduleOverviewCard: View {
                                     + (showsOverflow ? " …" : "")
                             )
                             .font(.footnote)
-                            .foregroundStyle(Color(.secondaryLabel))
+                            .foregroundStyle(AppTheme.textPrimary)
                             .lineLimit(2)
                             .truncationMode(.tail)
                             .frame(
@@ -42,10 +42,7 @@ struct ScheduleOverviewCard: View {
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay {
-                RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius)
-                    .stroke(AppTheme.accent, lineWidth: 1)
-            }
+            .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
             .contentShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
         }
         .buttonStyle(.plain)

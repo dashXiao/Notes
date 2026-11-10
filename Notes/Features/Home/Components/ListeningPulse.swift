@@ -10,8 +10,8 @@ struct ListeningPulse: View {
 
             Circle()
                 .stroke(
-                    AppTheme.accent.opacity(0.7 * (1 - progress)),
-                    lineWidth: 3
+                    AppTheme.accent.opacity(0.35 * (1 - progress)),
+                    lineWidth: 2
                 )
                 .scaleEffect(1 + progress * 0.36)
         }

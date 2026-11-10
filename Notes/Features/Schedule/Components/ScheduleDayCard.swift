@@ -13,21 +13,25 @@ struct ScheduleDayCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 18) {
             if items.isEmpty {
-                Text(emptyMessage)
-                    .font(.callout)
-                    .foregroundStyle(AppTheme.inactive)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .transition(.opacity)
+                VStack(spacing: 14) {
+                    AppIcon(systemName: "calendar.badge.clock", size: 32, weight: .regular)
+                        .foregroundStyle(AppTheme.accent)
+                        .frame(width: 72, height: 72)
+                        .background(AppTheme.accentTint, in: Circle())
+                    Text(emptyMessage)
+                        .font(.callout)
+                        .foregroundStyle(AppTheme.inactive)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 28)
+                .transition(.opacity)
             } else {
                 ScheduleDateHeader(day: day)
 
-                VStack(spacing: 0) {
-                    ForEach(Array(items.enumerated()), id: \.element.id) {
-                        index,
-                        item in
-
+                VStack(spacing: 10) {
+                    ForEach(items) { item in
                         SwipeableScheduleRow(
                             item: item,
                             onSelect: {
@@ -37,24 +41,13 @@ struct ScheduleDayCard: View {
                                 onDeleteSchedule(item.id)
                             }
                         )
-
-                        if index < items.count - 1 {
-                            Rectangle()
-                                .fill(AppTheme.bottomBorder)
-                                .frame(height: 1)
-                                .padding(.vertical, 16)
-                        }
                     }
                 }
             }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemBackground))
+        .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius)
-                .stroke(AppTheme.accent, lineWidth: 1)
-        }
     }
 }

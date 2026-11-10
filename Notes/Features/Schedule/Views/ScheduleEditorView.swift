@@ -22,6 +22,7 @@ struct ScheduleEditorView: View {
                 .labelsHidden()
                 .accessibilityLabel("Date")
             }
+            .listRowBackground(AppTheme.surface)
 
             Section {
                 Toggle("Time TBD", isOn: $model.isTimePending)
@@ -36,6 +37,7 @@ struct ScheduleEditorView: View {
             } header: {
                 Text("Time")
             }
+            .listRowBackground(AppTheme.surface)
 
             Section {
                 TextField(
@@ -49,45 +51,34 @@ struct ScheduleEditorView: View {
             } header: {
                 Text("Title")
             }
+            .listRowBackground(AppTheme.surface)
         }
         .scrollContentBackground(.hidden)
-        .background(Color(.systemBackground))
+        .background(AppTheme.canvas)
         .tint(AppTheme.accent)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(model.isEditing ? "Edit Schedule" : "New Schedule")
-                    .font(.callout)
-                    .foregroundStyle(Color(.label))
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.textPrimary)
             }
             .sharedBackgroundVisibility(.hidden)
 
             ToolbarItem(placement: .topBarLeading) {
-                Button(action: dismiss.callAsFunction) {
-                    Image("BackIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                }
-                .accessibilityLabel("Back")
+                AppIconButton(systemName: "chevron.left", label: "Back", action: dismiss.callAsFunction)
             }
             .sharedBackgroundVisibility(.hidden)
 
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: save) {
-                    Image("CheckIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .opacity(model.canSave ? 1 : 0.35)
-                }
+                AppIconButton(systemName: "checkmark", label: "Save schedule", isPrimary: true, action: save)
                 .disabled(!model.canSave)
-                .accessibilityLabel("Save schedule")
+                .opacity(model.canSave ? 1 : 0.35)
             }
             .sharedBackgroundVisibility(.hidden)
         }
-        .toolbarBackground(Color(.systemBackground), for: .navigationBar)
+        .toolbarBackground(AppTheme.canvas, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
             isTitleFocused = true

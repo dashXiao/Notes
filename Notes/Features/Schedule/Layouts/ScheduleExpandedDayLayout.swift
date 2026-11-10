@@ -11,7 +11,7 @@ struct ScheduleExpandedDayLayout: View {
     var body: some View {
         ZStack {
             Color.black
-                .opacity(0.22)
+                .opacity(0.10)
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture(perform: onDismiss)
@@ -23,7 +23,7 @@ struct ScheduleExpandedDayLayout: View {
                 onDeleteSchedule: onDeleteSchedule
             )
             .fixedSize(horizontal: false, vertical: true)
-            .frame(width: min(342, max(0, size.width - 60)))
+            .frame(width: min(520, max(0, size.width - AppTheme.pageInset * 2)))
             .transition(.scale(scale: 0.88).combined(with: .opacity))
         }
     }

@@ -52,48 +52,28 @@ struct ScheduleView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
+            .background(AppTheme.canvas)
             .overlay(alignment: .top) {
                 if expandedOverviewDay == nil {
-                    HStack {
-                        Button(action: toggleLayout) {
-                            Image(systemName: layoutMode == .singleDay
-                                ? "rectangle.grid.2x2" : "rectangle.portrait")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(AppTheme.accent)
-                                .frame(width: 44, height: 44)
-                                .background(AppTheme.cream, in: Circle())
-                                .overlay {
-                                    Circle().stroke(AppTheme.accent, lineWidth: 1)
-                                }
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(layoutMode == .singleDay
-                            ? "Show all schedule days" : "Show single-day schedule")
-
+                    HStack(spacing: 10) {
+                        Text("Schedule")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundStyle(AppTheme.textPrimary)
                         Spacer()
-
-                        Button(action: onCreateSchedule) {
-                            Image("NewScheduleIcon")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                                .frame(width: 44, height: 44)
-                                .background(AppTheme.cream, in: Circle())
-                                .overlay {
-                                    Circle().stroke(AppTheme.accent, lineWidth: 1)
-                                }
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Create schedule")
+                        AppIconButton(
+                            systemName: layoutMode == .singleDay ? "square.grid.2x2" : "rectangle.portrait",
+                            label: layoutMode == .singleDay ? "Show all schedule days" : "Show single-day schedule",
+                            action: toggleLayout
+                        )
+                        AppIconButton(systemName: "plus", label: "Create schedule", isPrimary: true, action: onCreateSchedule)
                     }
-                    .padding(.horizontal, 30)
-                    .padding(.top, 20)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 14)
                     .transition(.opacity)
                 }
             }
         }
-        .background(Color(.systemBackground))
+        .background(AppTheme.canvas)
         .toolbar(.hidden, for: .navigationBar)
         .animation(.easeOut(duration: 0.2), value: scheduleStore.items)
     }

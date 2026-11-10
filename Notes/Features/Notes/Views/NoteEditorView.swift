@@ -16,7 +16,7 @@ struct NoteEditorView: View {
             if let lastModifiedAt = model.lastModifiedAt {
                 Text(NoteFormatting.detailDateTimeText(lastModifiedAt))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.inactive)
                     .padding(.horizontal, 17)
                     .padding(.top, 12)
                     .padding(.bottom, 4)
@@ -24,11 +24,11 @@ struct NoteEditorView: View {
 
             editor
         }
-        .background(Color(.systemBackground))
+        .background(AppTheme.surface)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar { toolbarContent }
-        .toolbarBackground(Color(.systemBackground), for: .navigationBar)
+        .toolbarBackground(AppTheme.surface, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
     }
 
@@ -36,7 +36,7 @@ struct NoteEditorView: View {
         ZStack(alignment: .topLeading) {
             TextEditor(text: $model.text)
                 .font(.body)
-                .foregroundStyle(AppTheme.accent)
+                .foregroundStyle(AppTheme.textPrimary)
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 12)
@@ -64,33 +64,21 @@ struct NoteEditorView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             Text("Note")
-                .font(.callout)
-                .foregroundStyle(Color(.label))
+                .font(.headline)
+                .foregroundStyle(AppTheme.textPrimary)
         }
         .sharedBackgroundVisibility(.hidden)
 
         ToolbarItem(placement: .topBarLeading) {
-            Button(action: dismiss.callAsFunction) {
-                Image("BackIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            }
-            .accessibilityLabel("Back")
+            AppIconButton(systemName: "chevron.left", label: "Back", action: dismiss.callAsFunction)
         }
         .sharedBackgroundVisibility(.hidden)
 
         ToolbarItem(placement: .topBarTrailing) {
-            Button(action: save) {
-                Image("CheckIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .opacity(model.canSave ? 1 : 0.35)
-            }
+            AppIconButton(systemName: "checkmark", label: "Save note", isPrimary: true, action: save)
             .disabled(!model.canSave)
+            .opacity(model.canSave ? 1 : 0.35)
             .keyboardShortcut("s", modifiers: .command)
-            .accessibilityLabel("Save note")
         }
         .sharedBackgroundVisibility(.hidden)
     }

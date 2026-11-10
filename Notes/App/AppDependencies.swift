@@ -3,6 +3,7 @@ import Foundation
 
 @MainActor
 final class AppDependencies: ObservableObject {
+    let homePrompt = HomePromptModel()
     let notesStore: NotesStore
     let scheduleStore: ScheduleStore
     let speechInput: SpeechInputController
