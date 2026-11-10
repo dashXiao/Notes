@@ -12,6 +12,27 @@ struct NoteEditorView: View {
     }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let lastModifiedAt = model.lastModifiedAt {
+                Text(NoteFormatting.detailDateTimeText(lastModifiedAt))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 17)
+                    .padding(.top, 12)
+                    .padding(.bottom, 4)
+            }
+
+            editor
+        }
+        .background(Color(.systemBackground))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar { toolbarContent }
+        .toolbarBackground(Color(.systemBackground), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+    }
+
+    private var editor: some View {
         ZStack(alignment: .topLeading) {
             TextEditor(text: $model.text)
                 .font(.body)
@@ -31,47 +52,47 @@ struct NoteEditorView: View {
                     .allowsHitTesting(false)
             }
         }
-        .background(Color(.systemBackground))
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("Note")
-                    .font(.callout)
-                    .foregroundStyle(Color(.label))
+        .contentShape(Rectangle())
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                isEditorFocused = true
             }
-            .sharedBackgroundVisibility(.hidden)
+        )
+    }
 
-            ToolbarItem(placement: .topBarLeading) {
-                Button(action: dismiss.callAsFunction) {
-                    Image("BackIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                }
-                .accessibilityLabel("Back")
-            }
-            .sharedBackgroundVisibility(.hidden)
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Text("Note")
+                .font(.callout)
+                .foregroundStyle(Color(.label))
+        }
+        .sharedBackgroundVisibility(.hidden)
 
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: save) {
-                    Image("CheckIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .opacity(model.canSave ? 1 : 0.35)
-                }
-                .disabled(!model.canSave)
-                .keyboardShortcut("s", modifiers: .command)
-                .accessibilityLabel("Save note")
+        ToolbarItem(placement: .topBarLeading) {
+            Button(action: dismiss.callAsFunction) {
+                Image("BackIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
             }
-            .sharedBackgroundVisibility(.hidden)
+            .accessibilityLabel("Back")
         }
-        .toolbarBackground(Color(.systemBackground), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .onAppear {
-            isEditorFocused = true
+        .sharedBackgroundVisibility(.hidden)
+
+        ToolbarItem(placement: .topBarTrailing) {
+            Button(action: save) {
+                Image("CheckIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .opacity(model.canSave ? 1 : 0.35)
+            }
+            .disabled(!model.canSave)
+            .keyboardShortcut("s", modifiers: .command)
+            .accessibilityLabel("Save note")
         }
+        .sharedBackgroundVisibility(.hidden)
     }
 
     private func save() {

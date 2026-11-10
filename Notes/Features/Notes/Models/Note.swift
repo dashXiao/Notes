@@ -5,4 +5,8 @@ struct Note: Codable, Hashable, Identifiable {
     var text: String
     let createdAt: Date
     var updatedAt: Date
+
+    var editedAt: Date? {
+        updatedAt > createdAt ? updatedAt : nil
+    }
 }

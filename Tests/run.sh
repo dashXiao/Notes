@@ -15,6 +15,7 @@ swift_compiler="$developer_dir/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift
     Notes/Features/Notes/Models/Note.swift \
     Notes/Features/Notes/Stores/NotesStore.swift \
     Notes/Features/Notes/Presentation/NoteEditorModel.swift \
+    Notes/Features/Notes/Presentation/NoteFormatting.swift \
     Notes/Features/Schedule/Models/ScheduleItem.swift \
     Notes/Features/Schedule/Models/InferredScheduleChange.swift \
     Notes/Features/Schedule/Models/ScheduleDayGroup.swift \

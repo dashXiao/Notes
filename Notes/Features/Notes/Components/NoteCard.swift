@@ -7,13 +7,14 @@ struct NoteCard: View {
     let onRequestDelete: () -> Void
 
     @ScaledMetric(relativeTo: .callout) private var estimatedLineHeight = 20.0
+    @ScaledMetric(relativeTo: .caption2) private var metadataHeight = 14.0
 
     private var maximumHeight: CGFloat {
         width * 1.3
     }
 
     private var maximumLineCount: Int {
-        max(1, Int((maximumHeight - 32) / estimatedLineHeight))
+        max(1, Int((maximumHeight - 44 - metadataHeight) / estimatedLineHeight))
     }
 
     var body: some View {
@@ -24,13 +25,24 @@ struct NoteCard: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(maximumLineCount)
                 .truncationMode(.tail)
-                .padding(16)
+                .padding(.horizontal, 16)
+                .padding(.top, metadataHeight + 28)
+                .padding(.bottom, 16)
                 .frame(
                     maxWidth: .infinity,
                     minHeight: width,
                     maxHeight: maximumHeight,
                     alignment: .center
                 )
+                .overlay(alignment: .topLeading) {
+                    Text(NoteFormatting.cardDateText(note))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 12)
+                }
                 .overlay {
                     Rectangle()
                         .stroke(AppTheme.accent, lineWidth: 1)
@@ -44,7 +56,7 @@ struct NoteCard: View {
             }
         }
         .accessibilityAction(named: "Delete", onRequestDelete)
-        .accessibilityLabel(note.text)
+        .accessibilityElement(children: .combine)
         .accessibilityHint("Open note for editing. Long press to delete.")
     }
 }

@@ -36,6 +36,9 @@ final class NotesStore: ObservableObject {
         let savedNote: Note
 
         if let id, let index = notes.firstIndex(where: { $0.id == id }) {
+            guard notes[index].text != normalizedText else {
+                return notes[index]
+            }
             notes[index].text = normalizedText
             notes[index].updatedAt = now
             savedNote = notes[index]
@@ -49,14 +52,14 @@ final class NotesStore: ObservableObject {
             notes.append(savedNote)
         }
 
-        notes.sort { $0.updatedAt > $1.updatedAt }
+        notes.sort { $0.createdAt > $1.createdAt }
         persistNotes()
         return savedNote
     }
 
     private func loadNotes() {
         notes = ((try? storage.load([Note].self, from: "notes.json")) ?? [])
-            .sorted { $0.updatedAt > $1.updatedAt }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 
     private func persistNotes() {
