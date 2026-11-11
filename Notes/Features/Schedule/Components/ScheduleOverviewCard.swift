@@ -19,23 +19,23 @@ struct ScheduleOverviewCard: View {
 
                         HStack(alignment: .top, spacing: 8) {
                             Text(ScheduleFormatting.timeText(item))
-                            .font(.caption2)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(AppTheme.accentInk)
-                            .frame(width: 34, alignment: .leading)
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(AppTheme.accentInk)
+                                .frame(width: 34, alignment: .leading)
 
                             Text(
                                 item.title
                                     + (showsOverflow ? " …" : "")
                             )
-                            .font(.footnote)
-                            .foregroundStyle(AppTheme.textPrimary)
-                            .lineLimit(2)
-                            .truncationMode(.tail)
-                            .frame(
-                                maxWidth: .infinity,
-                                alignment: .leading
-                            )
+                                .font(.footnote)
+                                .foregroundStyle(AppTheme.textPrimary)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
+                                .frame(
+                                    maxWidth: .infinity,
+                                    alignment: .leading
+                                )
                         }
                     }
                 }

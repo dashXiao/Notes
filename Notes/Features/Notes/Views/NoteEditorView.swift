@@ -27,7 +27,16 @@ struct NoteEditorView: View {
         .background(AppTheme.surface)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .toolbar { toolbarContent }
+        .toolbar {
+            EditorToolbar(
+                title: "Note",
+                saveLabel: "Save note",
+                canSave: model.canSave,
+                saveShortcut: KeyboardShortcut("s", modifiers: .command),
+                onBack: dismiss.callAsFunction,
+                onSave: save
+            )
+        }
         .toolbarBackground(AppTheme.surface, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
     }
@@ -58,29 +67,6 @@ struct NoteEditorView: View {
                 isEditorFocused = true
             }
         )
-    }
-
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            Text("Note")
-                .font(.headline)
-                .foregroundStyle(AppTheme.textPrimary)
-        }
-        .sharedBackgroundVisibility(.hidden)
-
-        ToolbarItem(placement: .topBarLeading) {
-            AppIconButton(systemName: "chevron.left", label: "Back", action: dismiss.callAsFunction)
-        }
-        .sharedBackgroundVisibility(.hidden)
-
-        ToolbarItem(placement: .topBarTrailing) {
-            AppIconButton(systemName: "checkmark", label: "Save note", isPrimary: true, action: save)
-            .disabled(!model.canSave)
-            .opacity(model.canSave ? 1 : 0.35)
-            .keyboardShortcut("s", modifiers: .command)
-        }
-        .sharedBackgroundVisibility(.hidden)
     }
 
     private func save() {

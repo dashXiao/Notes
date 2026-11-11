@@ -34,5 +34,4 @@ struct ScheduleOverviewLayout: View {
         }
         .scrollIndicators(.hidden)
     }
-
 }

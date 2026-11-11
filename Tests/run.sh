@@ -12,6 +12,7 @@ swift_compiler="$developer_dir/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift
 "$swift_compiler" -swift-version 5 -parse-as-library -sdk "$sdk_path" \
     -module-cache-path "$test_build/ModuleCache" \
     Notes/Services/Persistence/JSONFileStorage.swift \
+    Notes/DesignSystem/Formatting/DisplayDateFormatting.swift \
     Notes/Features/Notes/Models/Note.swift \
     Notes/Features/Notes/Stores/NotesStore.swift \
     Notes/Features/Notes/Presentation/NoteEditorModel.swift \
@@ -28,6 +29,8 @@ swift_compiler="$developer_dir/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift
     Notes/Services/ScheduleExtraction/DeepSeek/*.swift \
     Notes/App/Workflows/NoteCaptureCoordinator.swift \
     Notes/App/Presentation/ToastPresenter.swift \
-    Tests/ArchitectureRegression.swift \
-    -o "$test_build/ArchitectureRegression"
-"$test_build/ArchitectureRegression"
+    Tests/Support/*.swift \
+    Tests/Cases/*.swift \
+    Tests/RegressionSuite.swift \
+    -o "$test_build/RegressionSuite"
+"$test_build/RegressionSuite"

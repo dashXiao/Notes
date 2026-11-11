@@ -28,10 +28,10 @@ struct SwipeableScheduleRow: View {
                     Text("Delete")
                         .font(.caption2.weight(.semibold))
                 }
-                    .foregroundStyle(.white)
-                    .frame(width: actionWidth)
-                    .frame(maxHeight: .infinity)
-                    .background(AppTheme.destructive)
+                .foregroundStyle(.white)
+                .frame(width: actionWidth)
+                .frame(maxHeight: .infinity)
+                .background(AppTheme.destructive)
             }
             .buttonStyle(.plain)
             .opacity(isOpen ? 1 : 0)
@@ -40,12 +40,12 @@ struct SwipeableScheduleRow: View {
 
             HStack(alignment: .top, spacing: 12) {
                 Text(ScheduleFormatting.timeText(item))
-                .font(.caption.weight(.semibold))
-                .monospacedDigit()
-                .foregroundStyle(AppTheme.accentInk)
-                .frame(width: 56)
-                .frame(minHeight: 32)
-                .background(AppTheme.accentTint, in: RoundedRectangle(cornerRadius: 9))
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(AppTheme.accentInk)
+                    .frame(width: 56)
+                    .frame(minHeight: 32)
+                    .background(AppTheme.accentTint, in: RoundedRectangle(cornerRadius: 9))
 
                 Text(item.title)
                     .font(.callout)

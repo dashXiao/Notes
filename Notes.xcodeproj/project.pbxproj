@@ -258,8 +258,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_KEY_DEEPSEEK_API_KEY = "$(DEEPSEEK_API_KEY)";
-				INFOPLIST_KEY_DEEPSEEK_MODEL = "$(DEEPSEEK_MODEL)";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record your voice to create notes.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Convert your speech into note text.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -296,8 +294,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_KEY_DEEPSEEK_API_KEY = "$(DEEPSEEK_API_KEY)";
-				INFOPLIST_KEY_DEEPSEEK_MODEL = "$(DEEPSEEK_MODEL)";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record your voice to create notes.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Convert your speech into note text.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -14,8 +14,9 @@ struct NoteCard: View {
         let seed = note.id.uuidString.utf8.reduce(UInt64(5381)) { ($0 &* 33) &+ UInt64($1) }
         let minimumVariation = CGFloat(seed % 101) / 100
         let maximumVariation = CGFloat((seed / 101) % 101) / 100
-        return (width * (0.65 + minimumVariation * 0.35))
-            ... (width * (1.3 + maximumVariation * 0.3))
+        let minimumHeight = width * (0.65 + minimumVariation * 0.35)
+        let maximumHeight = width * (1.3 + maximumVariation * 0.3)
+        return minimumHeight...maximumHeight
     }
 
     private var maximumLineCount: Int {

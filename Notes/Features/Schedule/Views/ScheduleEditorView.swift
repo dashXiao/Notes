@@ -59,24 +59,13 @@ struct ScheduleEditorView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text(model.isEditing ? "Edit Schedule" : "New Schedule")
-                    .font(.headline)
-                    .foregroundStyle(AppTheme.textPrimary)
-            }
-            .sharedBackgroundVisibility(.hidden)
-
-            ToolbarItem(placement: .topBarLeading) {
-                AppIconButton(systemName: "chevron.left", label: "Back", action: dismiss.callAsFunction)
-            }
-            .sharedBackgroundVisibility(.hidden)
-
-            ToolbarItem(placement: .topBarTrailing) {
-                AppIconButton(systemName: "checkmark", label: "Save schedule", isPrimary: true, action: save)
-                .disabled(!model.canSave)
-                .opacity(model.canSave ? 1 : 0.35)
-            }
-            .sharedBackgroundVisibility(.hidden)
+            EditorToolbar(
+                title: model.isEditing ? "Edit Schedule" : "New Schedule",
+                saveLabel: "Save schedule",
+                canSave: model.canSave,
+                onBack: dismiss.callAsFunction,
+                onSave: save
+            )
         }
         .toolbarBackground(AppTheme.canvas, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)

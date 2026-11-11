@@ -1,6 +1,6 @@
 import Foundation
 
-struct ScheduleIntentDetector {
+enum ScheduleIntentDetector {
     static func shouldAnalyze(_ text: String) -> Bool {
         let normalized = text
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)

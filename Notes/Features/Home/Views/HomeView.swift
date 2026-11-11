@@ -6,11 +6,6 @@ struct HomeView: View {
 
     let onCreateNote: () -> Void
 
-    private var recordingCaption: String {
-        if speechInput.isListening { return "Listening..." }
-        return speechInput.isBusy ? "Finishing your note..." : "Tap to speak"
-    }
-
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -41,48 +36,12 @@ struct HomeView: View {
 
                     Spacer(minLength: 40)
 
-                    VStack(spacing: 12) {
-                        Button {
-                            Task { await speechInput.toggle() }
-                        } label: {
-                            ZStack {
-                                Circle()
-                                    .fill(AppTheme.accentTint)
-                                    .frame(width: 144, height: 144)
-
-                                if speechInput.isListening { ListeningPulse() }
-
-                                Circle()
-                                    .fill(LinearGradient(
-                                        colors: [AppTheme.accent.opacity(0.8), AppTheme.accent],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ))
-                                    .frame(width: 112, height: 112)
-                                    .shadow(color: AppTheme.accent.opacity(0.22), radius: 18, y: 8)
-
-                                AppIcon(
-                                    systemName: speechInput.isListening ? "stop.fill" : "mic.fill",
-                                    size: speechInput.isListening ? 31 : 37
-                                )
-                                .foregroundStyle(AppTheme.surface)
-                            }
-                            .frame(width: 161, height: 161)
-                            .contentShape(Circle())
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(speechInput.isBusy)
-                        .opacity(speechInput.isBusy ? 0.75 : 1)
-                        .accessibilityLabel(speechInput.isListening ? "Stop voice input" : "Start voice input")
-                        .accessibilityHint(speechInput.isListening
-                            ? "Stops recording and saves the note"
-                            : "Records an English note and saves it automatically")
-
-                        Text(recordingCaption)
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(speechInput.isListening ? AppTheme.accentInk : AppTheme.inactive)
+                    VoiceInputControl(
+                        isListening: speechInput.isListening,
+                        isBusy: speechInput.isBusy
+                    ) {
+                        Task { await speechInput.toggle() }
                     }
-                    .frame(maxWidth: .infinity)
 
                     Spacer(minLength: 32)
                 }
