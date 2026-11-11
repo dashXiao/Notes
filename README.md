@@ -6,7 +6,7 @@ A native iOS app built with SwiftUI.
 
 ## Demo
 
-[![Notes home screen — click to watch the demo](Docs/Media/notes-demo-cover.jpg)](Docs/Media/notes-demo.mp4)
+https://github.com/user-attachments/assets/94ddf817-2fc4-4ab7-8c89-280cca427535
 
 ## What You Can Do
 
